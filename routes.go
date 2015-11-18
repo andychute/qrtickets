@@ -30,4 +30,16 @@ var routes = Routes{
 		"/api/v1/events/{eventId}",
 		EventShow,
 	},
+	Route{
+		"GenQR",
+		"GET",
+		"/gencode/{qrCode}",
+		GenQR,
+	},
+	Route{
+		"GenSignature",
+		"GET",
+		"/gensig",
+		GenSignature,
+	},
 }

@@ -39,3 +39,4 @@ func EventList(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
+
