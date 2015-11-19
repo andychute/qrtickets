@@ -33,33 +33,39 @@ func GenSignature(w http.ResponseWriter, r *http.Request) {
 	// Uses eliptic curve cryptography
 
 	// Generate a public / private key pair
-	privatekey := new(ecdsa.PrivateKey);
+	privatekey := new(ecdsa.PrivateKey)
 
 	// Generate an elliptic curve using NIST P-224
 	ecurve := elliptic.P224()
+	privatekey, err := ecdsa.GenerateKey(ecurve,rand.Reader)
 
-	privatekey, err := ecdsa.GenerateKey(ecurve,rand.Reader);
+	mk := &MyKey{privatekey}
+	mk.GetParams()
+
 	if err != nil {
 		panic (err)
 	}
 	
 	// Get the public key
-	pubkey := privatekey.Public()
+	var pubkey ecdsa.PublicKey
+	pubkey = privatekey.PublicKey
 	
 	// Try signing a message
 	message := []byte("This is a test")
 	sig1, sig2, err := ecdsa.Sign(rand.Reader, privatekey, message)
 
 	// Try verifying the signature
-	result := ecdsa.Verify(pubkey,message, sig1, sig2);
+	result := ecdsa.Verify(&pubkey,message, sig1, sig2)
 	if result != true {
-		panic("Unable to verify signature");
+		panic("Unable to verify signature")
 	}
 	
 	// Log the output
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Private: %#v\nPublic: %#v\n\nSignature:\n%v\n%v\n\nVerified: %v",privatekey,pubkey,sig1,sig2,result)
+
+	fmt.Fprintln(w, "Curve: ", pubkey.Curve)
+	fmt.Fprintf(w, "Curve: Private: %#v\nPublic: %#v\n\nSignature:\n%v\n%v\n\nVerified: %v",privatekey,pubkey,sig1,sig2,result)
 
 	// Now 
 }
