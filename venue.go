@@ -1,4 +1,4 @@
-package main
+package savoytickets
 
 type Venue struct {
 	Id                        int

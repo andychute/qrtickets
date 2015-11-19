@@ -1,4 +1,4 @@
-package main
+package savoytickets
 
 import (
 	"net/http"
@@ -20,5 +20,6 @@ func NewRouter() *mux.Router {
 			Handler(handler)
 
 	}
+
 	return router
 }

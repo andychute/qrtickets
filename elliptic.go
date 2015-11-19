@@ -1,4 +1,4 @@
-package main
+package savoytickets
 
 import (
 	"crypto/ecdsa"
@@ -39,7 +39,7 @@ func (c *MyCurveParams) SetParams (p, n, b, gx, gy *big.Int, bitsize int, name s
 	c.Gx = gx
 	c.Gy = gy
 	c.BitSize = bitsize
-	c.Name = name
+//	c.Name = name
 }
 
 func InitializeKey() {
