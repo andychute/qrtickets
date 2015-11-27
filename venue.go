@@ -1,4 +1,4 @@
-package savoytickets
+package qrtickets
 
 type Venue struct {
 	Id                        int

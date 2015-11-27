@@ -1,4 +1,4 @@
-package savoytickets
+package qrtickets
 
 import (
 	"path/filepath"
@@ -20,7 +20,7 @@ func LoadConfig() Configuration {
 	// Load Configuration
 	// Loads the configuration in JSON format from conf.json into the Configuration struct
 
-	path, _ := filepath.Abs("../src/bitbucket.org/capnfuzz/savoytickets/conf.json");
+	path, _ := filepath.Abs("../src/bitbucket.org/capnfuzz/qrtickets/conf.json");
 	file, filerr := os.Open(path)
 	if filerr != nil {
 		fmt.Println("error:", filerr)

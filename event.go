@@ -1,4 +1,4 @@
-package savoytickets
+package qrtickets
 
 import "time"
 
