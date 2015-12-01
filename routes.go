@@ -2,6 +2,7 @@ package qrtickets
 
 import "net/http"
 
+// Route - Define information necessary to route a url request to handler function
 type Route struct {
 	Name        string
 	Method      string
@@ -9,37 +10,29 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-type Routes []Route
-
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/api/v1",
-		Index,
-	},
-	Route{
-		"",
-		"GET",
-		"/api/v1/events",
-		EventList,
-	},
-	Route{
-		"EventShow",
-		"GET",
-		"/api/v1/events/{eventId}",
-		EventShow,
-	},
-	Route{
-		"GenQR",
-		"GET",
-		"/gencode/{qrCode}",
-		GenQR,
-	},
-	Route{
-		"GenSignature",
-		"GET",
-		"/gensig",
-		GenSignature,
-	},
-}
+var routes = []Route{{
+	"",
+	"GET",
+	"/api/v1/events",
+	EventList,
+}, {
+	"EventShow",
+	"GET",
+	"/api/v1/events/{eventId}",
+	EventShow,
+}, {
+	"GenQR",
+	"GET",
+	"/gencode/{qrCode}",
+	GenQR,
+}, {
+	"GenSignature",
+	"GET",
+	"/gensig",
+	GenSignature,
+}, {
+	"TestImport",
+	"GET",
+	"/loadconf",
+	ConfLoad,
+}}

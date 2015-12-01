@@ -1,11 +1,11 @@
 package qrtickets
 
 import (
-	"net/http"
-
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
+// NewRouter - Wrap with custom Logger to enable request logging
 func NewRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {

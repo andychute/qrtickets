@@ -1,26 +1,22 @@
 package qrtickets
 
 import (
-	"path/filepath"
-    "encoding/json"
-    "os"
-    "fmt"
+	"crypto/ecdsa"
 )
 
-type Configuration struct {
-    Key ConfKey
+// Config - Load the private key into the config
+type Config struct {
+	ecdsa.PrivateKey
 }
 
-type ConfKey struct {
-	P,N,B,Gx,Gy,BitSize,X,Y,D string
-}
 
-func LoadConfig() Configuration {
 
+/*
+func LoadConfig() Config {
 	// Load Configuration
 	// Loads the configuration in JSON format from conf.json into the Configuration struct
 
-	path, _ := filepath.Abs("../src/bitbucket.org/capnfuzz/qrtickets/conf.json");
+	path, _ := filepath.Abs("../src/bitbucket.org/capnfuzz/qrtickets/conf.json")
 	file, filerr := os.Open(path)
 	if filerr != nil {
 		fmt.Println("error:", filerr)
@@ -32,8 +28,7 @@ func LoadConfig() Configuration {
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-	
+
 	return configuration
 }
-
-
+*/

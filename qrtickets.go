@@ -6,5 +6,5 @@ import (
 
 func init() {
 	router := NewRouter()
-	http.Handle("/",router)
+	http.Handle("/", router)
 }

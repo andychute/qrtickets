@@ -4,25 +4,18 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
-	"html"
 	"net/http"
 	"time"
 )
 
+// EventShow - Return details for specific event with id=vars['eventId']
 func EventShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	eventId := vars["eventId"]
-	fmt.Fprintln(w, "Event ID:", eventId)
+	eventID := vars["eventId"]
+	fmt.Fprintln(w, "Event ID:", eventID)
 }
 
-func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-}
-
-func ApiIndex(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Hello, %q", html.EscapeString(r.URL.Path))
-}
-
+// EventList - Returns JSON list of events
 func EventList(w http.ResponseWriter, r *http.Request) {
 	layout := "2006-01-02 15:04:05"
 
@@ -39,4 +32,3 @@ func EventList(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 }
-

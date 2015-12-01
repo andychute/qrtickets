@@ -1,6 +1,7 @@
 package qrtickets
 
+// Venue - A physical location that hosts events
 type Venue struct {
-	Id                        int
+	ID                        int
 	Identifier, Name, Address string
 }

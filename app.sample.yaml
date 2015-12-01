@@ -6,3 +6,6 @@ api_version: go1
 handlers:
 - url: /.*
   script: _go_app
+
+env_variables:
+  PRIV_KEY: 'ECDSA_PRIVATE_KEY'
