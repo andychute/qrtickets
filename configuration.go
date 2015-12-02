@@ -9,8 +9,6 @@ type Config struct {
 	ecdsa.PrivateKey
 }
 
-
-
 /*
 func LoadConfig() Config {
 	// Load Configuration
