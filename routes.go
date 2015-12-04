@@ -31,8 +31,8 @@ var routes = []Route{{
 	"/gensig",
 	GenSignature,
 }, {
-	"TestImport",
+	"VerifySig",
 	"GET",
-	"/loadconf",
-	ConfLoad,
+	"/api/v1/tickets/{sig1}/{sig2}/{hash}",
+	VerifySignature,
 }}

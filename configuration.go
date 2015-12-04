@@ -2,6 +2,9 @@ package qrtickets
 
 import (
 	"crypto/ecdsa"
+	"crypto/elliptic"
+	"encoding/json"
+	"os"
 )
 
 // Config - Load the private key into the config
@@ -9,24 +12,37 @@ type Config struct {
 	ecdsa.PrivateKey
 }
 
-/*
-func LoadConfig() Config {
-	// Load Configuration
-	// Loads the configuration in JSON format from conf.json into the Configuration struct
+// ConfLoad - Load configuration from app.yaml
+func ConfLoad() *Config {
+	var conf *Config
 
-	path, _ := filepath.Abs("../src/bitbucket.org/capnfuzz/qrtickets/conf.json")
-	file, filerr := os.Open(path)
-	if filerr != nil {
-		fmt.Println("error:", filerr)
-	}
-	decoder := json.NewDecoder(file)
-
-	configuration := Configuration{}
-	err := decoder.Decode(&configuration)
-	if err != nil {
-		fmt.Println("error:", err)
+	// Read JSON config from app.yaml
+	if v := os.Getenv("PRIV_KEY"); v != "" {
+		err := json.Unmarshal([]byte(v), conf)
+		if err != nil {
+			panic(err)
+		}
 	}
 
-	return configuration
+	// Create the curve
+	conf.PublicKey.Curve = elliptic.P224()
+
+	// Return the conf
+
+	// Try signing a message
+	// message := []byte("99999999")
+	// sig1, sig2, err := ecdsa.Sign(rand.Reader, &conf.PrivateKey, message)
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	// // Try verifying the signature
+	// result := ecdsa.Verify(&conf.PublicKey, message, sig1, sig2)
+	// if result != true {
+	// 	panic("Unable to verify signature")
+	// } else {
+	// 	fmt.Fprintf(w, "sig1: %#v\nsig2: %#v", sig1, sig2)
+	// }
+
+	return conf
 }
-*/

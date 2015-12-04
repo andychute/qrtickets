@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
-	"os"
 )
 
 // GenQR - Generate a PNG QR code based on URL argument
@@ -27,41 +26,6 @@ func GenQR(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.WriteHeader(http.StatusOK)
 	w.Write(imgByte)
-}
-
-// ConfLoad - Load configuration from app.yaml
-func ConfLoad(w http.ResponseWriter, r *http.Request) {
-	var conf Config
-
-	// Log the output
-	w.Header().Set("Content-Type", "text/plain")
-	w.WriteHeader(http.StatusOK)
-
-	fmt.Fprintf(w, "%#v", conf)
-	if v := os.Getenv("PRIV_KEY"); v != "" {
-		err := json.Unmarshal([]byte(v), &conf)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	conf.PublicKey.Curve = elliptic.P224()
-	fmt.Fprintf(w, "%#v", conf)
-
-	// Try signing a message
-	message := []byte("99999999")
-	sig1, sig2, err := ecdsa.Sign(rand.Reader, &conf.PrivateKey, message)
-	if err != nil {
-		panic(err)
-	}
-
-	// Try verifying the signature
-	result := ecdsa.Verify(&conf.PublicKey, message, sig1, sig2)
-	if result != true {
-		panic("Unable to verify signature")
-	} else {
-		fmt.Fprintf(w, "sig1: %#v\nsig2: %#v", sig1, sig2)
-	}
 }
 
 // GenSignature - Debugging function to sign a message
