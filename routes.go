@@ -35,4 +35,14 @@ var routes = []Route{{
 	"GET",
 	"/api/v1/tickets/{sig1}/{sig2}/{hash}",
 	VerifySignature,
+}, {
+	"LoadConf",
+	"GET",
+	"/loadconf",
+	WebConfLoad,
+}, {
+	"TestSign",
+	"GET",
+	"/testsign",
+	TestSign,
 }}

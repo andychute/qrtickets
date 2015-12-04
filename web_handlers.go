@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"os"
 )
 
 // GenQR - Generate a PNG QR code based on URL argument
@@ -67,5 +68,61 @@ func GenSignature(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Curve: ", pubkey.Curve)
 	fmt.Fprintf(w, "Curve: Private: %#v\nPublic: %#v\n\nSignature:\n%v\n%v\n\nVerified: %v", privatekey, pubkey, sig1, sig2, result)
 
-	// Now
+}
+
+// TestSign - Return signatures for a signed message
+func TestSign(w http.ResponseWriter, r *http.Request) {
+	conf := ConfLoad()
+
+	// Returns a Public / Private Key Pair
+	// Read JSON config from app.yaml
+	if v := os.Getenv("PRIV_KEY"); v != "" {
+		err := json.Unmarshal([]byte(v), &conf)
+		if err != nil {
+			fmt.Printf("%#v", conf)
+			panic(err)
+		}
+	}
+
+	// Get the public key
+	var pubkey ecdsa.PublicKey
+	pubkey = conf.PublicKey
+
+	// Try signing a message
+	message := []byte("99999999")
+	sig1, sig2, err := ecdsa.Sign(rand.Reader, &conf.PrivateKey, message)
+	if err != nil {
+		panic(err)
+	}
+
+	// Try verifying the signature
+	result := ecdsa.Verify(&pubkey, message, sig1, sig2)
+	if result != true {
+		panic("Unable to verify signature")
+	}
+
+	fmt.Fprintf(w, "message: %#v\n\nsig1: %#v\nsig2: %#v", string(message[:]), sig1, sig2)
+
+}
+
+// WebConfLoad - Load Configuration and display to browser
+func WebConfLoad(w http.ResponseWriter, r *http.Request) {
+	var conf Config
+
+	// Returns a Public / Private Key Pair
+	// Uses eliptic curve cryptography
+
+	// Read JSON config from app.yaml
+	if v := os.Getenv("PRIV_KEY"); v != "" {
+		err := json.Unmarshal([]byte(v), &conf)
+		if err != nil {
+			fmt.Printf("%#v", conf)
+			panic(err)
+		}
+	}
+
+	// Create the curve
+	conf.PublicKey.Curve = elliptic.P224()
+	fmt.Fprintf(w, "%#v", conf)
+
 }
