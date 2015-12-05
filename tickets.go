@@ -31,8 +31,11 @@ func (n *TicketNumber) sign() {
 func GenTicket (w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
+	// Setup the Ticketnumber and sign it
 	var ticketnum = TicketNumber{ID: []byte(vars["hash"])}
 	ticketnum.sign()
+
+	
 	fmt.Fprintf(w, "sig1: %#v \n sig2: %#v \n message: %#v",ticketnum.Sig1,ticketnum.Sig2,vars["hash"])	
 }
 
