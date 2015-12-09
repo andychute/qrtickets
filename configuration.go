@@ -12,7 +12,7 @@ type Config struct {
 	ecdsa.PrivateKey
 }
 
-// ConfLoad - Load configuration from app.yaml
+// ConfLoad - Loads Private Key from packaged app.yaml environment variable
 func ConfLoad() *Config {
 	var conf Config
 

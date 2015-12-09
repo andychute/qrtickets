@@ -8,6 +8,7 @@ type Route struct {
 	Method      string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
+	AdminOnly bool
 }
 
 var routes = []Route{{
@@ -15,39 +16,47 @@ var routes = []Route{{
 	"GET",
 	"/api/v1/events",
 	EventList,
+	false,
 }, {
 	"EventShow",
 	"GET",
 	"/api/v1/events/{eventId}",
 	EventShow,
+	false,
 }, {
 	"GenQR",
 	"GET",
 	"/gencode/{qrCode}",
 	GenQR,
+	true,
 }, {
 	"GenSignature",
 	"GET",
 	"/gensig",
 	GenSignature,
+	true,
 }, {
 	"VerifySig",
 	"GET",
 	"/api/v1/tickets/{sig1}/{sig2}/{hash}",
 	VerifySignature,
+	true,
 }, {
 	"GenerateTicket",
 	"GET",
 	"/api/v1/tickets/generate/{hash}",
 	GenTicket,
+	true,
 }, {
 	"LoadConf",
 	"GET",
 	"/loadconf",
 	WebConfLoad,
+	true,
 }, {
 	"TestSign",
 	"GET",
 	"/testsign",
 	TestSign,
+	true,
 }}
