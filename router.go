@@ -3,6 +3,8 @@ package qrtickets
 import (
 	"github.com/gorilla/mux"
 	"net/http"
+	"log"
+	"os"
 )
 
 // NewRouter - Wrap with custom Logger to enable request logging
@@ -23,3 +25,14 @@ func NewRouter() *mux.Router {
 
 	return router
 }
+
+// VerifyAuth - Compare Header provided in HTTP request against app.yaml environment variable
+func VerifyAuth (i string) bool {
+	auth := os.Getenv("HTTP_AUTH")
+	if i == "" || auth == "" || i != auth {
+		log.Printf("%#v - %#v",auth,i)
+		return false
+	}
+	return true
+}
+

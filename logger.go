@@ -5,17 +5,12 @@ import (
 	"net/http"
 	"fmt"
 	"time"
-	"os"
 )
 
-// VerifyAuth - Compare Header provided in HTTP request against app.yaml environment variable
-func VerifyAuth (i string) bool {
-	auth := os.Getenv("HTTP_AUTH")
-	if i == "" || auth == "" || i != auth {
-		log.Printf("%#v - %#v",auth,i)
-		return false
-	}
-	return true
+// Error - Throw a JSON Error
+func JSONError(w *http.ResponseWriter, m string) {
+	// Display Error to HTTP Handler
+	fmt.Fprintf(*w,`{error: true,message: "%s"}`,m)
 }
 
 // Logger - Add additional logging to http.Handler
@@ -35,16 +30,17 @@ func Logger(inner http.Handler, name string, admin bool) http.Handler {
 		// Check to see if the method is admin only
 		if admin != false  {			
 			// Load the Ticket Auth Header from the request
-			pass := r.Header["X-Ticket-Auth"][0]
-			if VerifyAuth(pass) {
-				// Valid Request
-				fmt.Fprintf(w,"Yay!!!!")
-				log.Println(w,"LOGIN SUCCESS")
-				inner.ServeHTTP(w, r)
-			} else {			
-				// Unable to validate Request
-				fmt.Fprintf(w,`{error: true,message: "No / Invalid login information provided"}`)
-				log.Println(w,"ACCESS DENIED")
+			if len(r.Header["X-Ticket-Auth"]) > 0 {
+				pass := r.Header["X-Ticket-Auth"][0]
+				if VerifyAuth(pass) {
+					// Valid Request
+					log.Println(w,"LOGIN SUCCESS")
+					inner.ServeHTTP(w, r)
+				} else {			
+					JSONError(&w,"Could not verify HTTP password")
+				}
+			} else {
+				JSONError(&w,"No Auth Header Provided")
 			}
 		} else {
 			inner.ServeHTTP(w, r)
