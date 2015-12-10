@@ -1,33 +1,14 @@
 package qrtickets
-
 import (
-	"code.google.com/p/rsc/qr"
+
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"net/http"
 	"os"
 )
-
-// GenQR - Generate a PNG QR code based on URL argument
-func GenQR(w http.ResponseWriter, r *http.Request) {
-
-	// QR Code Generation Function
-	// Reads {qrCode} from URL and outputs image/png bytestream
-	vars := mux.Vars(r)
-	code, err := qr.Encode(vars["qrCode"], qr.H)
-	if err != nil {
-		panic(err)
-	}
-
-	imgByte := code.PNG()
-	w.Header().Set("Content-Type", "image/png")
-	w.WriteHeader(http.StatusOK)
-	w.Write(imgByte)
-}
 
 // GenSignature - Debugging function to sign a message
 func GenSignature(w http.ResponseWriter, r *http.Request) {

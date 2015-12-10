@@ -24,12 +24,6 @@ var routes = []Route{{
 	EventShow,
 	false,
 }, {
-	"GenQR",
-	"GET",
-	"/gencode/{qrCode}",
-	GenQR,
-	true,
-}, {
 	"GenSignature",
 	"GET",
 	"/gensig",
