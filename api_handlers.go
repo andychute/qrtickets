@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"google.golang.org/appengine"
+	"google.golang.org/appengine/datastore"
 	"net/http"
 	"time"
 )
@@ -12,7 +14,24 @@ import (
 func EventShow(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	eventID := vars["eventId"]
-	fmt.Fprintln(w, "Event ID:", eventID)
+	if eventID == "" {
+		http.Error(w, "No Event ID Provided", 500)
+		return
+	}
+
+	ctx := appengine.NewContext(r)
+	k, err := datastore.DecodeKey(eventID)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+	}
+
+	var e Event
+	if err = datastore.Get(ctx, k, &e); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	fmt.Fprintf(w, "%#v", e)
 }
 
 // EventList - Returns JSON list of events
@@ -21,9 +40,8 @@ func EventList(w http.ResponseWriter, r *http.Request) {
 
 	ts, _ := time.Parse(layout, "2015-11-27 00:33:00")
 	te, _ := time.Parse(layout, "2015-11-28 01:13:00")
-	events := Events{
-		Event{Headline: "Write presentation", StartTime: ts, EndTime: te, Description: "It's an event"},
-		Event{Headline: "Present Presentation", StartTime: ts, EndTime: te, Description: "It's an event"},
+	events := []Event{{Headline: "Write presentation", StartTime: ts, EndTime: te, Description: "It's an event"},
+		{Headline: "Present Presentation", StartTime: ts, EndTime: te, Description: "It's an event"},
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")

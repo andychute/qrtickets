@@ -8,7 +8,7 @@ type Route struct {
 	Method      string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
-	AdminOnly bool
+	AdminOnly   bool
 }
 
 var routes = []Route{{
@@ -52,5 +52,11 @@ var routes = []Route{{
 	"GET",
 	"/testsign",
 	TestSign,
+	true,
+}, {
+	"AddEvents",
+	"GET",
+	"/testadd",
+	AddTestEvents,
 	true,
 }}
