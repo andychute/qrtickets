@@ -13,8 +13,11 @@ import (
 
 // Ticket - Outlines a digital ticket
 type Ticket struct {
-	EventID, TicketNumber, Sig1, Sig2 string
-	Valid                             bool
+	OrderID      string `json:"order_id"`
+	Event        Event  `json:"event"`
+	TicketNumber string `json:"ticket_num"`
+	Sig1, Sig2   string `json:"-"`
+	Valid        bool   `json:"valid"`
 }
 
 // TicketNumber - Plain text

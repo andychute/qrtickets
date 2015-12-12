@@ -2,10 +2,7 @@ package qrtickets
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/datastore"
 	"net/http"
 	"time"
 )
@@ -19,19 +16,17 @@ func EventShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := appengine.NewContext(r)
-	k, err := datastore.DecodeKey(eventID)
+	event, err := LoadEvent(r, eventID)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
-	}
-
-	var e Event
-	if err = datastore.Get(ctx, k, &e); err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, "No Event ID Provided", 500)
 		return
 	}
 
-	fmt.Fprintf(w, "%#v", e)
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(event); err != nil {
+		panic(err)
+	}
 }
 
 // EventList - Returns JSON list of events

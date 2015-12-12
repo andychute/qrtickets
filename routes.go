@@ -38,7 +38,7 @@ var routes = []Route{{
 }, {
 	"GenerateTicket",
 	"GET",
-	"/api/v1/tickets/generate/{hash}",
+	"/api/v1/events/{eventId:[-0-9a-zA-Z]+}/tickets/add",
 	GenTicket,
 	true,
 }, {
