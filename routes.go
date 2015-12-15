@@ -30,10 +30,10 @@ var routes = []Route{{
 	GenSignature,
 	true,
 }, {
-	"VerifySig",
+	"ClaimTicket",
 	"GET",
-	"/api/v1/tickets/{sig1}/{sig2}/{hash}",
-	VerifySignature,
+	"/api/v1/tickets/{sig1}/{sig2}/{hash}/claim",
+	ClaimTicket,
 	false,
 }, {
 	"GenerateTicket",

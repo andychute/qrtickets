@@ -16,17 +16,39 @@ import (
 
 // Ticket - Outlines a digital ticket
 type Ticket struct {
-	OrderID  string        `json:"order_id"`
-	EventKey datastore.Key `json:"event"`
-	Valid    bool          `json:"valid"`
-	Claimed  bool          `json:"claimed"`
+	OrderID      string         `json:"order_id"`
+	EventKey     *datastore.Key `json:"event" datastore:"-"`
+	Valid        bool           `json:"valid"`
+	Claimed      bool           `json:"claimed"`
+	DatastoreKey datastore.Key  `datastore:"-"`
+}
+
+// Load - Takes a datastore.Key provided and loads it into the current Ticket object
+func (t *Ticket) Load(ctx context.Context, k datastore.Key) error {
+	err := datastore.Get(ctx, &k, t)
+	t.DatastoreKey = k
+	t.EventKey = k.Parent()
+
+	if err = datastore.Get(ctx, &k, t); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Store - Store the ticket entry in google datastore
 func (t *Ticket) Store(ctx context.Context) (*datastore.Key, error) {
+	var k *datastore.Key
+
+	// See if a key exists, or if a new one is required
+	if t.DatastoreKey.Incomplete() {
+		k = datastore.NewIncompleteKey(ctx, "ticket", t.EventKey)
+	} else {
+		k = &t.DatastoreKey
+	}
 
 	// Stash the entry in the datastore
-	key, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "ticket", &t.EventKey), t)
+	key, err := datastore.Put(ctx, k, t)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +99,7 @@ func AddTicket(w http.ResponseWriter, r *http.Request) {
 	// Build the ticket entry
 	t := Ticket{
 		OrderID:  "",
-		EventKey: *event,
+		EventKey: event,
 		Valid:    true,
 	}
 
@@ -100,7 +122,7 @@ func AddTicket(w http.ResponseWriter, r *http.Request) {
 
 	// Generate the QR code for the hash and two signatures
 	code, err := qr.Encode(buffer.String(), qr.L)
-	code.Scale = 4
+	code.Scale = 2
 
 	if err != nil {
 		panic(err)
@@ -108,6 +130,7 @@ func AddTicket(w http.ResponseWriter, r *http.Request) {
 
 	imgByte := code.PNG()
 	w.Header().Set("Content-Type", "image/png")
+	w.Header().Set("Content-Disposition", `inline; filename="`+k.Encode()+`"`)
 	w.WriteHeader(http.StatusOK)
 	w.Write(imgByte)
 }
@@ -131,12 +154,13 @@ func GenTicket(w http.ResponseWriter, r *http.Request) {
 	buffer.WriteString(vars["hash"])
 
 	// Generate the QR code for the hash and two signatures
-	code, err := qr.Encode(buffer.String(), qr.L)
+	code, err := qr.Encode(buffer.String(), qr.H)
 	if err != nil {
 		panic(err)
 	}
 
 	imgByte := code.PNG()
+
 	w.Header().Set("Content-Type", "image/png")
 	w.WriteHeader(http.StatusOK)
 	w.Write(imgByte)
@@ -144,11 +168,9 @@ func GenTicket(w http.ResponseWriter, r *http.Request) {
 	//	fmt.Fprintf(w, "sig1: %#v \n sig2: %#v \n message: %#v",ticketnum.Sig1,ticketnum.Sig2,vars["hash"])
 }
 
-// VerifySignature - Read hash, sig1, and sig2 from HTTP handler and verify
-func VerifySignature(w http.ResponseWriter, r *http.Request) {
+// ClaimTicket - Verify the ticket and claim it
+func ClaimTicket(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-
-	fmt.Fprintf(w, "%#v", r.Header["Cache-Control"])
 
 	// Define container variables
 	var hash []byte
@@ -160,11 +182,51 @@ func VerifySignature(w http.ResponseWriter, r *http.Request) {
 	sig2.SetString(vars["sig2"], 10)
 	hash = []byte(vars["hash"])
 
-	// Setup the signatures
-	ticketnum := TicketNumber{ID: hash, Sig1: sig1, Sig2: sig2}
-	if ticketnum.verify() != true {
-		fmt.Fprintf(w, "Unable to verify signature (priv method)")
-	} else {
-		fmt.Fprintf(w, "Ya!")
+	if VerifySignature(sig1, sig2, hash) {
+		// Signature has been successfully verified, Claim it in the datastore
+		ctx := appengine.NewContext(r)
+		var t Ticket
+
+		key, err := datastore.DecodeKey(vars["hash"])
+		// Check for decoding errors
+		if err != nil {
+			JSONError(&w, "Unable to Decode Key from provided hash")
+			return
+		}
+
+		// Map the results to the receiving object
+		if err = t.Load(ctx, *key); err != nil {
+			JSONError(&w, "Unable to Retrieve Key")
+			return
+		}
+
+		// Check for ticket validity
+		if t.Valid == false {
+			JSONError(&w, "Ticket has been invalidated")
+			return
+		}
+
+		if t.Claimed == true {
+			JSONError(&w, "Ticket has already been claimed")
+			return
+		}
+
+		// All good, update the ticket to claimed and resave it
+		t.Claimed = true
+		t.Store(ctx)
+
+		fmt.Fprintf(w, "%#v", t)
+		return
 	}
+
+	JSONError(&w, "Unable to Verify Signature")
+	return
+}
+
+// VerifySignature - Read hash, sig1, and sig2 from HTTP handler and verify
+func VerifySignature(s1, s2 *big.Int, hash []byte) bool {
+
+	// Setup the signatures
+	ticketnum := TicketNumber{ID: hash, Sig1: s1, Sig2: s2}
+	return ticketnum.verify()
 }
