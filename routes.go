@@ -34,12 +34,12 @@ var routes = []Route{{
 	"GET",
 	"/api/v1/tickets/{sig1}/{sig2}/{hash}",
 	VerifySignature,
-	true,
+	false,
 }, {
 	"GenerateTicket",
 	"GET",
 	"/api/v1/events/{eventId:[-0-9a-zA-Z]+}/tickets/add",
-	GenTicket,
+	AddTicket,
 	true,
 }, {
 	"LoadConf",
