@@ -44,7 +44,7 @@ func (t *Ticket) Store(ctx context.Context) (*datastore.Key, error) {
 
 	// See if a key exists, or if a new one is required
 	if t.DatastoreKey.Incomplete() {
-		k = datastore.NewIncompleteKey(ctx, "ticket", t.EventKey)
+		k = datastore.NewIncompleteKey(ctx, "Ticket", t.EventKey)
 		t.DateAdded = time.Now()
 	} else {
 		k = &t.DatastoreKey

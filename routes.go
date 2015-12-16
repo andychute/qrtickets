@@ -43,7 +43,7 @@ var routes = []Route{{
 	false,
 }, {
 	"AddTicket",
-	"POST",
+	"GET",
 	"/api/v1/events/{eventId:[-0-9a-zA-Z]+}/ticket/add",
 	AddTicket,
 	true,

@@ -16,7 +16,9 @@ type Event struct {
 	Description  string        `json:"description" datastore:",noindex"`
 	URL          string        `json:"url"`
 	DateAdded    time.Time     `json:"date_added" datastore:",noindex"`
-	DatastoreKey datastore.Key `datastore:"-"`
+	DatastoreKey datastore.Key `json:"event_id" datastore:"-"`
+	TicketPrice  float32       `json:"price" datastore:",noindex"`
+	Promoter     string        `json:"promoter" datastore:",noindex"`
 }
 
 // LoadEvent - Accepts a key to look up in datastore
@@ -74,7 +76,7 @@ func (e *Event) Store(ctx context.Context) (*datastore.Key, error) {
 
 	// See if a key exists, or if a new one is required
 	if e.DatastoreKey.Incomplete() {
-		k = datastore.NewIncompleteKey(ctx, "event", nil)
+		k = datastore.NewIncompleteKey(ctx, "Event", nil)
 	} else {
 		k = &e.DatastoreKey
 	}
@@ -86,4 +88,16 @@ func (e *Event) Store(ctx context.Context) (*datastore.Key, error) {
 	}
 
 	return key, nil
+}
+
+// Load - Loads the event from Google datastore into the event object
+func (e *Event) Load(ctx context.Context, k datastore.Key) error {
+	err := datastore.Get(ctx, &k, e)
+	e.DatastoreKey = k
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
