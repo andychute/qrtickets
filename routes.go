@@ -18,6 +18,12 @@ var routes = []Route{{
 	EventList,
 	false,
 }, {
+	"AddEvent",
+	"POST",
+	"/api/v1/events/create",
+	AddEvent,
+	true,
+}, {
 	"EventShow",
 	"GET",
 	"/api/v1/events/{eventId}",
@@ -32,13 +38,13 @@ var routes = []Route{{
 }, {
 	"ClaimTicket",
 	"GET",
-	"/api/v1/tickets/{sig1}/{sig2}/{hash}/claim",
+	"/api/v1/tickets/{sig1:[0-9]+}/{sig2:[0-9]+}/{hash:[-0-9a-zA-Z]+}/claim",
 	ClaimTicket,
 	false,
 }, {
-	"GenerateTicket",
-	"GET",
-	"/api/v1/events/{eventId:[-0-9a-zA-Z]+}/tickets/add",
+	"AddTicket",
+	"POST",
+	"/api/v1/events/{eventId:[-0-9a-zA-Z]+}/ticket/add",
 	AddTicket,
 	true,
 }, {
@@ -52,11 +58,5 @@ var routes = []Route{{
 	"GET",
 	"/testsign",
 	TestSign,
-	true,
-}, {
-	"AddEvents",
-	"GET",
-	"/testadd",
-	AddTestEvents,
 	true,
 }}

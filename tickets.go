@@ -12,6 +12,7 @@ import (
 	"google.golang.org/appengine/datastore"
 	"math/big"
 	"net/http"
+	"time"
 )
 
 // Ticket - Outlines a digital ticket
@@ -21,6 +22,7 @@ type Ticket struct {
 	Valid        bool           `json:"valid"`
 	Claimed      bool           `json:"claimed"`
 	DatastoreKey datastore.Key  `datastore:"-"`
+	DateAdded    time.Time      `json:"date_added"`
 }
 
 // Load - Takes a datastore.Key provided and loads it into the current Ticket object
@@ -43,6 +45,7 @@ func (t *Ticket) Store(ctx context.Context) (*datastore.Key, error) {
 	// See if a key exists, or if a new one is required
 	if t.DatastoreKey.Incomplete() {
 		k = datastore.NewIncompleteKey(ctx, "ticket", t.EventKey)
+		t.DateAdded = time.Now()
 	} else {
 		k = &t.DatastoreKey
 	}
@@ -87,7 +90,6 @@ func AddTicket(w http.ResponseWriter, r *http.Request) {
 
 	// Load the event datastore key
 	event, err := datastore.DecodeKey(vars["eventId"])
-
 	if err != nil {
 		panic(err)
 	}
@@ -98,7 +100,7 @@ func AddTicket(w http.ResponseWriter, r *http.Request) {
 
 	// Build the ticket entry
 	t := Ticket{
-		OrderID:  "",
+		OrderID:  r.FormValue("order_id"),
 		EventKey: event,
 		Valid:    true,
 	}

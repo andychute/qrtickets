@@ -8,10 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"time"
-
-	"google.golang.org/appengine"
-	"google.golang.org/appengine/datastore"
 )
 
 // GenSignature - Debugging function to sign a message
@@ -109,27 +105,5 @@ func WebConfLoad(w http.ResponseWriter, r *http.Request) {
 	// Create the curve
 	conf.PublicKey.Curve = elliptic.P224()
 	fmt.Fprintf(w, "%#v", conf)
-
-}
-
-// AddTestEvents - Insert some demo entries into the database
-func AddTestEvents(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
-	ct := time.Now()
-
-	e1 := Event{
-		StartTime:   ct,
-		EndTime:     ct,
-		Headline:    "Test Event #1",
-		Description: "It's a description",
-	}
-
-	key, err := datastore.Put(ctx, datastore.NewIncompleteKey(ctx, "event", nil), &e1)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Fprintf(w, "%#v", key.Encode())
 
 }
