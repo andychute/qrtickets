@@ -7,21 +7,30 @@ import (
 	"net/http"
 )
 
-// EventList - Retrieve event objects from google datastore (most recent first)
-func EventList(w http.ResponseWriter, r *http.Request) {
+func getEvents(r *http.Request, limit int) ([]Event, error) {
 	ctx := appengine.NewContext(r)
-	q := datastore.NewQuery("Event").Order("-StartTime").Limit(50)
+	q := datastore.NewQuery("Event").Order("-StartDate").Limit(limit)
 
 	var results []Event
 	k, err := q.GetAll(ctx, &results)
+
 	if err != nil {
-		JSONError(&w, err.Error())
+		return nil, err
 	}
 
 	for i := range results {
 		results[i].DatastoreKey = *k[i]
 	}
 
-	json.NewEncoder(w).Encode(results)
+	return results, nil
+}
 
+// EventList - Retrieve event objects from google datastore (most recent first)
+func EventList(w http.ResponseWriter, r *http.Request) {
+	results, err := getEvents(r, 50)
+	if err != nil {
+		JSONError(&w, err.Error())
+	} else {
+		json.NewEncoder(w).Encode(results)
+	}
 }

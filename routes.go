@@ -59,4 +59,5 @@ var routes = []Route{{
 	"/testsign",
 	TestSign,
 	true,
-}}
+},
+}

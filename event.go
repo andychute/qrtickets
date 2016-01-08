@@ -1,6 +1,8 @@
 package qrtickets
 
 import (
+	"encoding/json"
+	"github.com/gorilla/mux"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
@@ -10,15 +12,20 @@ import (
 
 // Event - define a performance / event
 type Event struct {
-	StartTime    time.Time     `json:"start_time"`
-	EndTime      time.Time     `json:"end_time"`
-	Headline     string        `json:"headline" datastore:",noindex"`
-	Description  string        `json:"description" datastore:",noindex"`
-	URL          string        `json:"url"`
-	DateAdded    time.Time     `json:"date_added" datastore:",noindex"`
+	StartDate   time.Time `json:"startDate"`
+	DoorTime    time.Time `json:"doorTime"`
+	EndDate     time.Time `json:"endDate"`
+	Name        string    `json:"name" datastore:",noindex"`
+	Description string    `json:"description" datastore:",noindex"`
+	URL         string    `json:"url"`
+	DateAdded   time.Time `json:"date_added" datastore:",noindex"`
+
+	Promoter string        `json:"promoter" datastore:",noindex"`
+	Image    string        `json:"image" datastore:",noindex"`
+	Venue    datastore.Key `json:"Venue"`
+
+	// Additional Datastore Variables
 	DatastoreKey datastore.Key `json:"event_id" datastore:"-"`
-	TicketPrice  float32       `json:"price" datastore:",noindex"`
-	Promoter     string        `json:"promoter" datastore:",noindex"`
 }
 
 // LoadEvent - Accepts a key to look up in datastore
@@ -51,12 +58,14 @@ func AddEvent(w http.ResponseWriter, r *http.Request) {
 
 	// Create the event object
 	e1 := Event{
-		StartTime:   st,
-		EndTime:     et,
+		StartDate:   st,
+		EndDate:     et,
 		DateAdded:   at,
-		Headline:    r.FormValue("headline"),
+		Name:        r.FormValue("headline"),
 		Description: r.FormValue("description"),
 		URL:         r.FormValue("event_url"),
+		Promoter:    r.FormValue("promoter"),
+		Image:       r.FormValue("poster_file"),
 	}
 
 	// Add the event to the Datastore
@@ -100,4 +109,26 @@ func (e *Event) Load(ctx context.Context, k datastore.Key) error {
 	}
 
 	return nil
+}
+
+// EventShow - Return details for specific event with id=vars['eventId']
+func EventShow(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	eventID := vars["eventId"]
+	if eventID == "" {
+		http.Error(w, "No Event ID Provided", 500)
+		return
+	}
+
+	event, err := LoadEvent(r, eventID)
+	if err != nil {
+		http.Error(w, "No Event ID Provided", 500)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(event); err != nil {
+		panic(err)
+	}
 }
