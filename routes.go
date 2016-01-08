@@ -59,5 +59,11 @@ var routes = []Route{{
 	"/testsign",
 	TestSign,
 	true,
+}, {
+	"AddPromoter",
+	"POST",
+	"/api/v1/promoter/create",
+	AddPromoter,
+	true,
 },
 }

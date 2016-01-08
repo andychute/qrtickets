@@ -20,7 +20,7 @@ type Event struct {
 	URL         string    `json:"url"`
 	DateAdded   time.Time `json:"date_added" datastore:",noindex"`
 
-	Promoter string        `json:"promoter" datastore:",noindex"`
+	Promoter datastore.Key `json:"promoter"`
 	Image    string        `json:"image" datastore:",noindex"`
 	Venue    datastore.Key `json:"Venue"`
 
@@ -42,6 +42,7 @@ func LoadEvent(r *http.Request, id string) (*Event, error) {
 	if err = datastore.Get(ctx, k, &e); err != nil {
 		return nil, err
 	}
+	e.DatastoreKey = *k
 
 	return &e, nil
 }
@@ -52,20 +53,41 @@ func AddEvent(w http.ResponseWriter, r *http.Request) {
 
 	// Set the timestamps
 	at := time.Now()
-	const timeformat = "2006-01-02 15:04:05"
+	const timeformat = "2006-01-02 15:04:05 -0700"
 	st, _ := time.Parse(timeformat, r.FormValue("start_time"))
 	et, _ := time.Parse(timeformat, r.FormValue("end_time"))
+	dt, _ := time.Parse(timeformat, r.FormValue("door_time"))
 
 	// Create the event object
 	e1 := Event{
 		StartDate:   st,
 		EndDate:     et,
 		DateAdded:   at,
+		DoorTime:    dt,
 		Name:        r.FormValue("headline"),
 		Description: r.FormValue("description"),
 		URL:         r.FormValue("event_url"),
-		Promoter:    r.FormValue("promoter"),
 		Image:       r.FormValue("poster_file"),
+	}
+
+	// Load the Venue Key
+	if len(r.FormValue("venue")) > 0 {
+		venue, err := datastore.DecodeKey(r.FormValue("venue"))
+		if err != nil {
+			JSONError(&w, err.Error())
+			return
+		}
+		e1.Venue = *venue
+	}
+
+	// Load the Promoter Key
+	if len(r.FormValue("promoter")) > 0 {
+		promoter, err := datastore.DecodeKey(r.FormValue("promoter"))
+		if err != nil {
+			JSONError(&w, err.Error())
+			return
+		}
+		e1.Promoter = *promoter
 	}
 
 	// Add the event to the Datastore
