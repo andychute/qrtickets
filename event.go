@@ -1,6 +1,7 @@
 package qrtickets
 
 import (
+	"fmt"
 	"encoding/json"
 	"github.com/gorilla/mux"
 	"golang.org/x/net/context"
@@ -20,9 +21,9 @@ type Event struct {
 	URL         string    `json:"url"`
 	DateAdded   time.Time `json:"date_added" datastore:",noindex"`
 
-	Promoter datastore.Key `json:"promoter"`
+	Promoter *datastore.Key `json:"promoter"`
 	Image    string        `json:"image" datastore:",noindex"`
-	Venue    datastore.Key `json:"Venue"`
+	Venue    *datastore.Key `json:"Venue"`
 
 	// Additional Datastore Variables
 	DatastoreKey datastore.Key `json:"event_id" datastore:"-"`
@@ -73,11 +74,12 @@ func AddEvent(w http.ResponseWriter, r *http.Request) {
 	// Load the Venue Key
 	if len(r.FormValue("venue")) > 0 {
 		venue, err := datastore.DecodeKey(r.FormValue("venue"))
+		fmt.Fprintf(w,"%+v",venue)
 		if err != nil {
 			JSONError(&w, err.Error())
 			return
 		}
-		e1.Venue = *venue
+		e1.Venue = venue
 	}
 
 	// Load the Promoter Key
@@ -87,7 +89,8 @@ func AddEvent(w http.ResponseWriter, r *http.Request) {
 			JSONError(&w, err.Error())
 			return
 		}
-		e1.Promoter = *promoter
+		e1.Promoter = promoter
+		fmt.Fprintf(w,"%+v",e1)
 	}
 
 	// Add the event to the Datastore

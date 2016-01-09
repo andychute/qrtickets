@@ -65,5 +65,11 @@ var routes = []Route{{
 	"/api/v1/promoter/create",
 	AddPromoter,
 	true,
+}, {
+	"AddVenue",
+	"POST",
+	"/api/v1/venue/create",
+	AddVenue,
+	true,
 },
 }
