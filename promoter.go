@@ -1,6 +1,7 @@
 package qrtickets
 
 import (
+	"encoding/json"
 	"golang.org/x/net/context"
 	"google.golang.org/appengine"
 	"google.golang.org/appengine/datastore"
@@ -54,4 +55,33 @@ func (p *Promoter) Store(ctx context.Context) (*datastore.Key, error) {
 	}
 
 	return key, nil
+}
+
+// getPromoters - Retrieve list of promoters 
+func getPromoters(r *http.Request) ([]Promoter, error) {
+	ctx := appengine.NewContext(r)
+	q := datastore.NewQuery("Promoter")
+
+	var results []Promoter
+	k, err := q.GetAll(ctx, &results)
+
+	if err != nil {
+		return nil, err
+	}
+
+	for i := range results {
+		results[i].DatastoreKey = *k[i]
+	}
+
+	return results, nil
+}
+
+// PromoterList - List Promoters in JSON format
+func PromoterList(w http.ResponseWriter, r *http.Request) {
+	results, err := getPromoters(r)
+	if err != nil {
+		JSONError(&w, err.Error())
+	} else {
+		json.NewEncoder(w).Encode(results)
+	}
 }

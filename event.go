@@ -34,7 +34,7 @@ type Event struct {
 func LoadEvent(r *http.Request, id string) (*Event, error) {
 	ctx := appengine.NewContext(r)
 	k, err := datastore.DecodeKey(id)
-
+	
 	if err != nil {
 		return nil, err
 	}
