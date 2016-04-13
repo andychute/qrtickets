@@ -27,9 +27,11 @@ func Logger(inner http.Handler, name string, admin bool) http.Handler {
 			time.Since(start),
 		)
 
+		log.Printf("%v",r);
+
+
 		// Check to see if the method is admin only
 		if admin != false {
-			// Load the Ticket Auth Header from the request
 			if len(r.Header["X-Ticket-Auth"]) > 0 {
 				pass := r.Header["X-Ticket-Auth"][0]
 				if VerifyAuth(pass) {
